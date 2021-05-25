@@ -1,0 +1,25 @@
+---
+pkgs: 
+      - "docker"
+      - "iproute-tc"
+
+kubectl_pkg:
+      - "kubelet"
+      - "kubeadm"
+      - "kubectl"
+
+min_requirement_path: "/etc/sysctl.d/k8s.conf"
+
+kube_yum_baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+
+kube_yum_gpgkey: "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
+
+hostvar_token_present: yes
+
+kube_join_token: ''
+
+ca_cert_hash: ''
+
+master_ip: ''
+
+master_portno: ''

@@ -1,0 +1,107 @@
+---
+        - name: Installing Docker and iproute-tc
+          package:
+                name: "{{ item }}"
+                state: present
+          loop: "{{ pkgs }}"
+
+        - name: Starting Docker Services
+          service:
+                name: docker
+                state: started
+                enabled: yes
+
+        - name: Configuring Yum Repository for Kubernetes
+          yum_repository:
+                name: kubernetes
+                description: Kubernetes
+                baseurl: "{{kube_yum_baseurl}}"
+                gpgcheck: yes
+                repo_gpgcheck: no
+                enabled: yes
+                gpgkey: "{{ kube_yum_gpgkey }}"
+                exclude: "{{ kubernetes_pkg }}"
+
+        - name: Install a list of packages 
+          yum:
+                name: "{{ kubernetes_pkg }}"
+                state: present
+                disable_excludes: kubernetes
+
+        - name: Changing Cgroup Driver to systemd
+          blockinfile:
+                 create: true
+                 path: "{{ cgroup_path }}"
+                 marker: ""
+                 block: |
+                         {
+                              "exec-opts": ["native.cgroupdriver=systemd"]
+                         }
+                 state: present
+          register: docker_check
+
+        - name: Restarting Docker Services
+          service:
+                 name: docker
+                 state: restarted
+                 enabled: yes
+          when: docker_check.changed
+
+        - name: Starting Kubelet Services
+          service: 
+                name: kubelet
+                state: started
+                enabled: yes
+          register: kubelet_check
+
+        - name: Pulling Kubernetes base Images
+          shell: "kubeadm config images pull"
+          when: "{{kubelet_check.changed}}"
+
+        - name: To set the minimum requirement
+          blockinfile:
+                create: true
+                path: "{{ min_requirement_path }}"
+                marker: ""
+                block: |
+                        net.bridge.bridge-nf-call-ip6tables=1
+                        net.bridge.bridge-nf-call-iptables=1
+                state: present
+          register: min_check
+
+        - shell: sysctl --system
+          when: min_check.changed
+
+        - name: Starting Kubernetes on cidr 10.244.0.0/16
+          shell: "kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem"
+
+        - name: Creating .kube directory in Home
+          file:
+                path: "$HOME/.kube"
+                state: directory
+                mode: '751'
+                owner: "{{ owner_user }}"
+                group: "{{ group_user }}"
+        
+        - name: Copy admin configuration file
+          copy:
+                src: "/etc/kubernetes/admin.conf"
+                dest: "$HOME/.kube/config"
+                owner: "{{ owner_user }}"
+                group: "{{ group_user }}"
+                mode: '700'
+                remote_src: yes
+
+        - name: Setting up the CNI 
+          shell: "kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
+        
+        - name: Creating the join command for the worker nodes
+          shell: kubeadm token create  --print-join-command
+          register: x
+
+        - name: Saving the command to the host
+          add_host:
+                name: Join_CMD
+                cmd: "{{ x.stdout }}"
+
+

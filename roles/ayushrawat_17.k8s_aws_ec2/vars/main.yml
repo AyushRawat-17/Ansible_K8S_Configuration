@@ -1,0 +1,10 @@
+---
+# vars file for k8s.aws.ec2
+key: "awskey"
+instanceType: "t2.micro"
+imageId: ami-045e6fa7127ab1ac4
+securityGroup: default
+region: ap-south-1
+no_of_slave: "1"
+k8s_sg_name: "k8s-sg"
+aws_cli_profile: default

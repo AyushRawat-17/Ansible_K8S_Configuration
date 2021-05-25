@@ -1,0 +1,16 @@
+---
+- hosts: localhost
+  gather_facts: no
+  roles:
+    - role: ayushrawat_17.k8s_aws_ec2
+  tasks:
+    - name: Refresing Inventory
+      meta: refresh_inventory
+
+- hosts: tag_type_master
+  roles:
+   - role: ./roles/ayushrawat_17.k8s_aws_master
+
+- hosts: tag_type_worker
+  roles:
+    - role: ayushrawat_17.k8s_aws_slave

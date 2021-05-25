@@ -1,0 +1,22 @@
+---
+# vars file for k8s.aws.master
+pkgs: 
+      - docker
+      - iproute-tc
+
+kubernetes_pkg:
+         - kubelet 
+         - kubeadm 
+         - kubectl 
+
+kube_yum_baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+
+kube_yum_gpgkey: "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
+
+cgroup_path: "/etc/docker/daemon.json"
+
+min_requirement_path: "/etc/sysctl.d/k8s.conf"
+
+owner_user: root
+
+group_user: root

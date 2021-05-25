@@ -1,0 +1,87 @@
+---
+        - name: Installing Docker and iproute-tc
+          package:
+                name: "{{ item }}"
+                state: present
+          loop: "{{ pkgs }}"
+
+        - name: Starting Docker Services
+          service:
+                name: docker
+                state: started
+                enabled: yes
+
+        - name: Configuring Yum Repository for Kubernetes
+          yum_repository:
+                name: kubernetes
+                description: Kubernetes
+                baseurl: "{{kube_yum_baseurl}}"
+                gpgcheck: yes
+                repo_gpgcheck: no
+                enabled: yes
+                gpgkey: "{{ kube_yum_gpgkey }}"
+                exclude: "{{ kubectl_pkg }}"
+
+        - name: Install a list of packages 
+          yum:
+                name: "{{ item }}"
+                state: present
+                disable_excludes: kubernetes
+          loop: "{{ kubectl_pkg }}"
+
+        - name: Changing Cgroup Driver to systemd
+          blockinfile:
+                 create: true
+                 path: /etc/docker/daemon.json
+                 marker: ""
+                 block: |
+                         {
+                              "exec-opts": ["native.cgroupdriver=systemd"]
+                         }
+                 state: present
+          register: docker_check
+
+        - name: Restarting Docker Services
+          service:
+                 name: docker
+                 state: restarted
+                 enabled: yes
+          when: docker_check.changed
+
+
+        - name: Starting Kubelet Services
+          service: 
+                name: kubelet
+                state: started
+                enabled: yes
+          register: kubelet_check
+
+        - name: To set the minimum requirement
+          blockinfile:
+                create: true
+                path: "{{ min_requirement_path }}"
+                marker: ""
+                block: |
+                        net.bridge.bridge-nf-call-ip6tables=1
+                        net.bridge.bridge-nf-call-iptables=1
+                state: present
+          register: min_check
+
+        - shell: sysctl --system
+          when: min_check.changed
+
+        - name: Joining to the master using hostvar
+          command: "{{ hostvars.Join_CMD.cmd }}"
+          when: "{{ hostvar_token_present }}"
+          register: host_token_present
+
+        - name: Joining the master using the token provided
+          shell: "kubeadm join {{ master_ip }}:{{ master_portno }} --token {{kube_join_token}} --discovery-token-ca-cert-hash {{ca_cert_hash}}"
+          when:  "{{ host_token_present.changed }} == false" 
+          register: token_present
+          ignore_errors: True
+
+        - debug:
+             msg: Please update the Variables
+          when: "{{ token_present.failed }} == true"         
+          ignore_errors: True

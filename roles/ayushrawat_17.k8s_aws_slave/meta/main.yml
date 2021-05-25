@@ -1,0 +1,18 @@
+galaxy_info:
+  author: Ayush Rawat
+  description: Role to create Kubernetes Worker Node on Amazon Linux 2 and with Container Engine Docker and Flannel CNI
+  
+  license: BSD-3-Clause
+
+  min_ansible_version: 2.8
+
+  platforms:
+   - name: Fedora
+     versions:
+       - all
+
+  galaxy_tags: [ 'kubernetes', 'aws', 'kubernetesWorker' ]
+    
+# dependencies: 
+#     - role: ayushrawat_17.k8s_aws_ec2
+#     - role: ayushrawat_17.k8s_aws_master
