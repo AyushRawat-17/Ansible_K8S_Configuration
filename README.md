@@ -14,7 +14,7 @@ This how you may start using this Project.
    - Install **boto3** python Library using **pip**.</br>
        > `pip3 install boto3` 
    - Install and Configure **AWS CLI 2** (also create a profile).
-   -  Create a AWS private key by the name of **awskey**.
+   -  Create a AWS private key by the name of **awskey** or with any other name.
    
 ### Installation
 
