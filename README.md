@@ -21,6 +21,7 @@ This how you may start using this Project.
   1. Clone the Repository </br>
     `git clone https://github.com/AyushRawat-17/Ansible_K8S_Configuration.git`
   2. Copy the Private key to the root Directory of the project.
+  3. Update the value of **private_key_file** variable in the **ansible.cfg** (If you use private key other than **awskey.pem**)
 
 # Usage
 
