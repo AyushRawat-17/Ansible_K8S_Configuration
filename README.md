@@ -11,7 +11,7 @@ This how you may start using this Project.
    - Install Python 3 on your System.
    - Install Ansible using **pip**.</br>
        > `pip3 install ansible`
-   - Install **boto3** python Library using **pip**.</br>
+   - Install **boto3** and **boto** python Library using **pip**.</br>
        > `pip3 install boto3` 
    - Install and Configure **AWS CLI 2** (also create a profile).
    -  Create a AWS private key by the name of **awskey** or with any other name.
@@ -22,6 +22,11 @@ This how you may start using this Project.
     `git clone https://github.com/AyushRawat-17/Ansible_K8S_Configuration.git`
   2. Copy the Private key to the root Directory of the project.
   3. Update the value of **private_key_file** variable in the **ansible.cfg** (If you use private key other than **awskey.pem**)
+  4. Make the ./inventory/ec.py file executable. Use the following command
+         `chmod +x ./inventory/ec.py`
+  5. Change the permission of the private key to read only. Use the following command
+         `chmod +400 awskey.pem`
+  6. If you are using the private key with some other name change the value of variable **key** in the this file ./roles/ayushrawat_17.k8s_aws_ec2/vars/main.yml
 
 # Usage
 
